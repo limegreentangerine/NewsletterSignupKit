@@ -37,6 +37,16 @@ abstract class AbstractSubscriber extends UpdatedGuidEntity
      */
     protected int $processed = 0;
 
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true, options={"comment": "First Name"})
+     */
+    protected ?string $firstName = null;
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true, options={"comment": "Last Name"})
+     */
+    protected ?string $lastName = null;
+
     protected static function assertConcrete()
     {
         if ((new \ReflectionClass(static::class))->isAbstract()) {
@@ -152,5 +162,61 @@ abstract class AbstractSubscriber extends UpdatedGuidEntity
         $this->processed = $processed;
 
         return $this;
+    }
+
+    /**
+     * Get the first name of the subscriber
+     *
+     * @return string|null the first name of the subscriber
+     */
+    public function getFirstName()
+    {
+        return $this->firstName;
+    }
+
+    /**
+     * Sets the first name for the subscriber
+     *
+     * @param string|null $firstName the first name
+     *
+     * @return self
+     */
+    public function setFirstName($firstName)
+    {
+        $this->firstName = $firstName;
+
+        return $this;
+    }
+
+    /**
+     * Retrieves the last name associated with the subscriber.
+     *
+     * @return string|null
+     */
+    public function getLastName()
+    {
+        return $this->lastName;
+    }
+
+    /**
+     * Sets the last name for the subscriber
+     *
+     * @param string|null $lastName the last name
+     *
+     * @return self
+     */
+    public function setLastName($lastName)
+    {
+        $this->lastName = $lastName;
+
+        return $this;
+    }
+
+    /**
+     * First and last name joined with a single space; empty if neither is set
+     */
+    public function getFullName(): string
+    {
+        return trim(trim((string) $this->firstName) . ' ' . trim((string) $this->lastName));
     }
 }

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "240bcb53f65f71010dbcbc313f53d357",
+    "content-hash": "66e0375df6661728ef146abfbcaef05e",
     "packages": [
         {
             "name": "campaignmonitor/createsend-php",

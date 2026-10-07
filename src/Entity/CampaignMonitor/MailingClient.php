@@ -43,7 +43,7 @@ class MailingClient extends UpdatedGuidEntity
      *
      * @param string $id
      *
-     * @return self
+     * @return self|false
      */
     public static function getByClientID(string $id)
     {

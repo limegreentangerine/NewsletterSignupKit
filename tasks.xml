@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<concrete5-cif version="1.0">
+    <tasks>
+        <task handle="get_mailchimp_lists" package="newsletter_signup_kit" />
+        <task handle="get_campaign_monitor_lists" package="newsletter_signup_kit" />
+        <task handle="add_mailchimp_subscribers" package="newsletter_signup_kit" />
+        <task handle="add_campaign_monitor_subscribers" package="newsletter_signup_kit" />
+    </tasks>
+
+    <tasksets>
+        <taskset handle="newsletter_signup_kit" name="Newsletter Signup">
+            <task handle="get_mailchimp_lists" />
+            <task handle="get_campaign_monitor_lists" />
+            <task handle="add_mailchimp_subscribers" />
+            <task handle="add_campaign_monitor_subscribers" />
+        </taskset>
+    </tasksets>
+</concrete5-cif>

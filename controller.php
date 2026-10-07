@@ -24,7 +24,7 @@ class Controller extends PackageController
      *
      * @var string
      */
-    protected $pkgVersion = '0.0.0';
+    protected $pkgVersion = '0.0.2';
 
     /**
      * The minimum Concrete version compatible with the package.
@@ -97,7 +97,12 @@ class Controller extends PackageController
      *
      * @var array
      */
-    protected $tasks = [];
+    protected $tasks = [
+        'get_mailchimp_lists' => \NewsletterSignupKit\Command\Task\Controller\GetMailchimpListsController::class,
+        'get_campaign_monitor_lists' => \NewsletterSignupKit\Command\Task\Controller\GetCampaignMonitorListsController::class,
+        'add_mailchimp_subscribers' => \NewsletterSignupKit\Command\Task\Controller\AddMailchimpSubscribersController::class,
+        'add_campaign_monitor_subscribers' => \NewsletterSignupKit\Command\Task\Controller\AddCampaignMonitorSubscribersController::class,
+    ];
 
     public function getPackageName()
     {
@@ -113,6 +118,14 @@ class Controller extends PackageController
     {
         // Add blocks
         $this->autoInstallBlocks($pkg);
+
+        // Add scheduled tasks
+        $this->installContentFile('tasks.xml');
+
+        // Add dashboard pages
+        $this->addSinglePage('/dashboard/newsletter_signup', $pkg, t('Newsletter Signup'), t('Newsletter Signup Dashboard'));
+        $this->addSinglePage('/dashboard/newsletter_signup/settings', $pkg, t('Settings'), t('Newsletter Provider Settings'));
+        $this->addSinglePage('/dashboard/newsletter_signup/lists', $pkg, t('Mailing Lists'), t('Imported Mailing Lists'));
     }
 
     public function registerRoutes(): void {}
