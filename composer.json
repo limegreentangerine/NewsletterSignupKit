@@ -1,22 +1,24 @@
 {
-	"name": "limegreentangerine/composer_package",
-	"description": "composer_description",
+	"name": "limegreentangerine/newsletter_signup_kit",
+	"description": "Integration with Mailchimp and Campaign Monitor for newsletter signups.",
 	"type": "concrete5-package",
 	"license": "proprietary",
 	"minimum-stability": "stable",
 	"autoload": {
 		"psr-4": {
-			"ComposerPackage\\": "src/"
+			"NewsletterSignupKit\\": "src/"
 		}
 	},
 	"autoload-dev": {
 		"psr-4": {
-			"ComposerPackage\\Tests\\": "tests/"
+			"NewsletterSignupKit\\Tests\\": "tests/"
 		}
 	},
 	"authors": [],
 	"require": {
-		"limegreentangerine/class_kit": "^1.0"
+		"limegreentangerine/class_kit": "^1.0",
+		"mailchimp/marketing": "^3.0",
+		"campaignmonitor/createsend-php": "^7.1"
 	},
 	"require-dev": {
 		"php": "^8.4",

@@ -1,11 +1,15 @@
 <?php
 
-namespace Concrete\Package\ComposerPackage;
+namespace Concrete\Package\NewsletterSignupKit;
 
-use Concrete\Core\Package\Package;
+use Concrete\Core\Entity\Package;
+use ClassKit\Package\PackageController;
+use ClassKit\Package\Traits\{BlockTrait, PageTrait};
 
-class Controller extends Package
+class Controller extends PackageController
 {
+    use BlockTrait;
+    use PageTrait;
     /**
      * The packages handle.
      * Note that this must be unique in the
@@ -13,7 +17,7 @@ class Controller extends Package
      *
      * @var string
      */
-    protected $pkgHandle = 'composer_package';
+    protected $pkgHandle = 'newsletter_signup_kit';
 
     /**
      * The packages version.
@@ -83,7 +87,7 @@ class Controller extends Package
      * @var array
      */
     protected $pkgAutoloaderRegistries = [
-        'src' => '\ComposerPackage',
+        'src' => '\NewsletterSignupKit',
     ];
 
     /**
@@ -97,11 +101,21 @@ class Controller extends Package
 
     public function getPackageName()
     {
-        return t('composer_name');
+        return t('Newsletter Signup');
     }
 
     public function getPackageDescription()
     {
-        return t('composer_description');
+        return t('Integration with Mailchimp and Campaign Monitor for newsletter signups.');
     }
+
+    public function installOrUpgrade(Package $pkg)
+    {
+        // Add blocks
+        $this->autoInstallBlocks($pkg);
+    }
+
+    public function registerRoutes(): void {}
+
+    public function registerEvents(): void {}
 }
