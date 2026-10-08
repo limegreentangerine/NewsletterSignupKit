@@ -4,6 +4,7 @@
  * @var string                                   $providerLabel
  * @var \Concrete\Core\Validation\CSRF\Token     $token
  */
+$form = \Core::make('helper/form');
 ?>
 
 <div class="ccm-dashboard-header-buttons">
@@ -18,39 +19,47 @@
         <legend><?php echo t('Details'); ?></legend>
         <div class="row row-cols-1 row-cols-lg-2">
             <div class="col mb-3">
-                <label class="form-label"><?php echo t('Name'); ?></label>
-                <input type="text" class="form-control" value="<?php echo h($entity->getName()); ?>" readonly>
+                <?php
+                    echo $form->label('name', t('Name'));
+echo $form->text('name', h($entity->getName()), ['readonly' => 'readonly']);
+?>
             </div>
             <div class="col mb-3">
-                <label class="form-label"><?php echo t('List ID'); ?></label>
-                <input type="text" class="form-control" value="<?php echo h($entity->getListId()); ?>" readonly>
+                <?php
+    echo $form->label('list_id', t('List ID'));
+echo $form->text('list_id', h($entity->getListId()), ['readonly' => 'readonly']);
+?>
             </div>
             <?php if ($entity instanceof \NewsletterSignupKit\Entity\Mailchimp\MailchimpList) { ?>
                 <div class="col mb-3">
-                    <label class="form-label"><?php echo t('List Web ID'); ?></label>
-                    <input type="text" class="form-control" value="<?php echo h($entity->getListWebId()); ?>" readonly>
+                    <?php
+        echo $form->label('list_web_id', t('List Web ID'));
+                echo $form->text('list_web_id', h($entity->getListWebId()), ['readonly' => 'readonly']);
+                ?>
                 </div>
                 <div class="col mb-3">
-                    <label class="form-label"><?php echo t('Visibility'); ?></label>
-                    <input type="text" class="form-control" value="<?php echo h($entity->getVisibility()); ?>" readonly>
+                    <?php
+                    echo $form->label('visibility', t('Visibility'));
+                echo $form->text('visibility', h($entity->getVisibility()), ['readonly' => 'readonly']);
+                ?>
                 </div>
             <?php } elseif ($entity instanceof \NewsletterSignupKit\Entity\CampaignMonitor\CampaignMonitorList) { ?>
                 <div class="col mb-3">
-                    <label class="form-label"><?php echo t('Client'); ?></label>
-                    <input type="text" class="form-control" value="<?php echo h($entity->getClient() ? $entity->getClient()->getName() : ''); ?>" readonly>
+                    <?php
+                    echo $form->label('client', t('Client'));
+                echo $form->text('client', h($entity->getClient() ? $entity->getClient()->getName() : ''), ['readonly' => 'readonly']);
+                ?>
                 </div>
             <?php } ?>
-            <div class="col mb-3">
-                <label class="form-label"><?php echo t('Languages'); ?></label>
-                <input type="text" class="form-control" value="<?php echo h($entity->getLanguagesAsString()); ?>" readonly>
-            </div>
         </div>
     </fieldset>
     <fieldset>
         <legend><?php echo t('Settings'); ?></legend>
         <div class="form-check mb-3">
-            <input type="checkbox" class="form-check-input" id="showInForms" name="showInForms" value="1" <?php echo $entity->getShowInForms() > 0 ? 'checked' : ''; ?>>
-            <label class="form-check-label" for="showInForms"><?php echo t('Show in forms'); ?></label>
+            <?php
+                echo $form->checkbox('showInForms', 1, $entity->getShowInForms() > 0);
+echo $form->label('showInForms', t('Show in forms'), ['class' => 'form-check-label']);
+?>
         </div>
     </fieldset>
     <div class="ccm-dashboard-form-actions-wrapper">

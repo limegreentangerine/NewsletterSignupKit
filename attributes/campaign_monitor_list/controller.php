@@ -9,9 +9,8 @@ use View;
 use Doctrine\ORM\EntityManagerInterface;
 use ClassKit\Package\Traits\AttributeTrait;
 use Concrete\Core\Localization\Localization;
-use Concrete\Core\Attribute\FontAwesomeIconFormatter;
-use Concrete\Core\Attribute\Controller as AttributeTypeController;
 use NewsletterSignupKit\Entity\CampaignMonitor\CampaignMonitorList;
+use Concrete\Core\Attribute\{Controller as AttributeTypeController, FontAwesomeIconFormatter};
 
 class Controller extends AttributeTypeController
 {

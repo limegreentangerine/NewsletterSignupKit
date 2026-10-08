@@ -39,11 +39,6 @@ abstract class AbstractList extends UpdatedGuidEntity
     protected int $showInForms = 0;
 
     /**
-     * @ORM\Column(type="string", length=255, unique=false, nullable=true, options={"comment": "List Languages"})
-     */
-    protected ?string $languages;
-
-    /**
      * Get By List ID
      *
      * Must be called on a provider subclass (e.g. MailchimpList::getByListID()),
@@ -212,41 +207,5 @@ abstract class AbstractList extends UpdatedGuidEntity
     public function getShowInFormsString()
     {
         return ($this->showInForms > 0) ? 'Yes' : 'No';
-    }
-
-    /**
-     * Get the value of languages
-     */
-    public function getLanguages($asString = false)
-    {
-        if ($asString) {
-            return $this->languages;
-        }
-
-        return explode(',', $this->languages);
-    }
-
-    /**
-     * Get the value of languages as a string
-     *
-     * Returns a comma-separated list of languages
-     *
-     * @return string
-     */
-    public function getLanguagesAsString()
-    {
-        return $this->getLanguages(true);
-    }
-
-    /**
-     * Set the value of languages
-     *
-     * @return self
-     */
-    public function setLanguages($languages)
-    {
-        $this->languages = (is_array($languages)) ? implode(',', $languages) : $languages;
-
-        return $this;
     }
 }

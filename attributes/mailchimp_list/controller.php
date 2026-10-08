@@ -6,9 +6,8 @@ defined('C5_EXECUTE') or die('Access Denied.');
 
 use Doctrine\ORM\EntityManagerInterface;
 use ClassKit\Package\Traits\AttributeTrait;
-use Concrete\Core\Attribute\FontAwesomeIconFormatter;
 use NewsletterSignupKit\Entity\Mailchimp\MailchimpList;
-use Concrete\Core\Attribute\Controller as AttributeTypeController;
+use Concrete\Core\Attribute\{Controller as AttributeTypeController, FontAwesomeIconFormatter};
 
 class Controller extends AttributeTypeController
 {
