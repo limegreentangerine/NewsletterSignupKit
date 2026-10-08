@@ -5,6 +5,7 @@
 /.php-cs-fixer.dist.php export-ignore
 /.prettierignore export-ignore
 /.prettierrc export-ignore
+/composer.lock export-ignore
 /package-lock.json export-ignore
 /package.json export-ignore
 /phpunit.xml.dist export-ignore

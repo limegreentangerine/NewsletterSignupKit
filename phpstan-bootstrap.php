@@ -34,3 +34,17 @@ if (!class_exists('Events', false)) {
         }
     }
 }
+
+// createsend-php defines CS_REST_Wrapper_Result and the base classes in files that its classmap doesn't cover.
+foreach (glob(__DIR__ . '/vendor/campaignmonitor/createsend-php/class/*.php') ?: [] as $file) {
+    require_once $file;
+}
+
+// Concrete CMS registers these facades/aliases at runtime.
+if (!class_exists('ORM', false)) {
+    class_alias(Concrete\Core\Support\Facade\DatabaseORM::class, 'ORM');
+}
+
+if (!class_exists('URL', false)) {
+    class_alias(Concrete\Core\Support\Facade\Url::class, 'URL');
+}

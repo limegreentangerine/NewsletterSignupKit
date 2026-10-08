@@ -1,11 +1,16 @@
 <?php
 
-namespace Concrete\Package\ComposerPackage;
+namespace Concrete\Package\NewsletterSignupKit;
 
-use Concrete\Core\Package\Package;
+use Concrete\Core\Entity\Package;
+use ClassKit\Package\PackageController;
+use ClassKit\Package\Traits\{AttributeTrait, BlockTrait, PageTrait};
 
-class Controller extends Package
+class Controller extends PackageController
 {
+    use AttributeTrait;
+    use BlockTrait;
+    use PageTrait;
     /**
      * The packages handle.
      * Note that this must be unique in the
@@ -13,14 +18,14 @@ class Controller extends Package
      *
      * @var string
      */
-    protected $pkgHandle = 'composer_package';
+    protected $pkgHandle = 'newsletter_signup_kit';
 
     /**
      * The packages version.
      *
      * @var string
      */
-    protected $pkgVersion = '0.0.0';
+    protected $pkgVersion = '0.0.1.beta0.0.2';
 
     /**
      * The minimum Concrete version compatible with the package.
@@ -83,7 +88,7 @@ class Controller extends Package
      * @var array
      */
     protected $pkgAutoloaderRegistries = [
-        'src' => '\ComposerPackage',
+        'src' => '\NewsletterSignupKit',
     ];
 
     /**
@@ -93,15 +98,42 @@ class Controller extends Package
      *
      * @var array
      */
-    protected $tasks = [];
+    protected $tasks = [
+        'get_mailchimp_lists' => \NewsletterSignupKit\Command\Task\Controller\GetMailchimpListsController::class,
+        'get_campaign_monitor_lists' => \NewsletterSignupKit\Command\Task\Controller\GetCampaignMonitorListsController::class,
+        'add_mailchimp_subscribers' => \NewsletterSignupKit\Command\Task\Controller\AddMailchimpSubscribersController::class,
+        'add_campaign_monitor_subscribers' => \NewsletterSignupKit\Command\Task\Controller\AddCampaignMonitorSubscribersController::class,
+    ];
 
     public function getPackageName()
     {
-        return t('composer_name');
+        return t('NewsletterSignupKit');
     }
 
     public function getPackageDescription()
     {
-        return t('composer_description');
+        return t('Integration with Mailchimp and Campaign Monitor for newsletter signups.');
     }
+
+    public function installOrUpgrade(Package $pkg)
+    {
+        // Add blocks
+        $this->autoInstallBlocks($pkg);
+
+        // Add scheduled tasks
+        $this->installContentFile('tasks.xml');
+
+        // add Attribute Types
+        $this->addAttributeType('campaign_monitor_list', t('Campaign Monitor List'), $pkg, [ 'express' ]);
+        $this->addAttributeType('mailchimp_list', t('Mailchimp List'), $pkg, [ 'express' ]);
+
+        // Add dashboard pages
+        $this->addSinglePage('/dashboard/newsletter_signup', $pkg, t('Newsletter Signup'), t('Newsletter Signup Dashboard'));
+        $this->addSinglePage('/dashboard/newsletter_signup/settings', $pkg, t('Settings'), t('Newsletter Provider Settings'));
+        $this->addSinglePage('/dashboard/newsletter_signup/lists', $pkg, t('Mailing Lists'), t('Imported Mailing Lists'));
+    }
+
+    public function registerRoutes(): void {}
+
+    public function registerEvents(): void {}
 }

@@ -5,3 +5,15 @@ parameters:
   paths:
     - src
     - tests
+  ignoreErrors:
+    # MailchimpMarketing\ApiClient creates these API objects dynamically in its constructor.
+    - identifier: property.notFound
+      path: tests/Api/MailchimpTest.php
+    - identifier: property.notFound
+      path: src/Api/Mailchimp*.php
+    # Concrete CMS facades forward static calls via __callStatic.
+    - identifier: staticMethod.notFound
+      message: '#Concrete\\Core\\Support\\Facade\\#'
+    # Only used by blocks/, which isn't analysed.
+    - identifier: trait.unused
+      path: src/Block/BlockTrait.php
