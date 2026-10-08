@@ -1,0 +1,42 @@
+div#ccm-dashboard-content
+	div#ccm-dashboard-content-regular
+	.ccm-search-results-table
+	thead
+	th:first-child {
+	padding-left: 37px;
+}
+
+div#ccm-dashboard-content
+	div#ccm-dashboard-content-regular
+	.ccm-search-results-table
+	thead
+	th.ccm-search-results-bulk-selector {
+	padding-bottom: 0;
+	padding-top: 0;
+}
+
+div#ccm-dashboard-content
+	div#ccm-dashboard-content-regular
+	.ccm-search-results-table
+	thead
+	th.ccm-search-results-bulk-selector
+	.btn-group {
+	margin-left: -5px;
+}
+
+div#ccm-dashboard-content
+	div#ccm-dashboard-content-regular
+	.ccm-search-results-table
+	thead
+	th.ccm-search-results-bulk-selector
+	.btn {
+	padding: 2px 5px;
+}
+
+div#ccm-dashboard-content
+	div#ccm-dashboard-content-regular
+	.ccm-search-results-table
+	tbody
+	td:first-child {
+	padding-left: 37px;
+}

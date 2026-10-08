@@ -5,7 +5,10 @@ namespace Concrete\Package\NewsletterSignupKit\Controller\SinglePage\Dashboard\N
 use Doctrine\ORM\EntityManagerInterface;
 use NewsletterSignupKit\Provider\Registry;
 use NewsletterSignupKit\Entity\AbstractList;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Concrete\Core\Page\Controller\DashboardPageController;
+use Concrete\Core\Application\UserInterface\ContextMenu\DropdownMenu;
+use Concrete\Core\Application\UserInterface\ContextMenu\Item\LinkItem;
 use Concrete\Package\NewsletterSignupKit\Controller\Search\MailingLists as SearchController;
 
 /**
@@ -18,6 +21,24 @@ class Lists extends DashboardPageController
         'form',
         'concrete/ui',
     ];
+
+    /**
+     * The bulk actions dropdown shown in the results header (core search-results pattern, see ConcreteSearchResultsTable).
+     */
+    private function buildBulkMenu(): DropdownMenu
+    {
+        $menu = new DropdownMenu();
+
+        foreach (['show' => t('Show in forms'), 'hide' => t('Hide from forms')] as $mode => $label) {
+            $menu->addItem(new LinkItem('#', $label, [
+                'data-bulk-action' => $mode,
+                'data-bulk-action-type' => 'ajax',
+                'data-bulk-action-url' => (string) $this->action('bulk', $mode),
+            ]));
+        }
+
+        return $menu;
+    }
 
     public function view()
     {
@@ -64,39 +85,26 @@ class Lists extends DashboardPageController
         $this->set('num_results', $numResults);
         $this->set('allowed_num_results', $allowedNumResults);
         $this->set('token', $this->token->generate('list-search'));
-        $this->set('bulkToken', $this->token->output('bulk_lists', true));
+        $this->set('bulkToken', $this->token->generate('bulk_lists'));
+        $this->set('resultsBulkMenu', $this->buildBulkMenu());
+
+        $html = $this->app->make("helper/html");
+        $this->addHeaderItem($html->css('dashboard/list.css', 'newsletter_signup_kit'));
     }
 
     /**
-     * Bulk-set showInForms on the ticked lists.
+     * Bulk-set showInForms on the ticked lists (called via ajax by the bulk actions dropdown).
      */
-    public function bulk()
+    public function bulk(?string $mode = null)
     {
-        $provider = (string) $this->request->request->get('provider', '');
-        $listUrl = $this->app->make('url/manager')->resolve(['/dashboard/newsletter_signup/lists']);
-        if (Registry::has($provider)) {
-            $listUrl = $listUrl->setQuery(['provider' => $provider]);
-        }
-
         if (!$this->token->validate('bulk_lists')) {
-            $this->flash('error', $this->token->getErrorMessage());
-
-            return $this->buildRedirect($listUrl);
+            return new JsonResponse(['error' => true, 'errors' => [$this->token->getErrorMessage()]]);
         }
 
         $ids = array_filter((array) $this->request->request->all('ids'), 'is_string');
-        $action = (string) $this->request->request->get('bulk_action', '');
 
-        if ($ids === []) {
-            $this->flash('error', t('Select at least one mailing list.'));
-
-            return $this->buildRedirect($listUrl);
-        }
-
-        if (!in_array($action, ['show', 'hide'], true)) {
-            $this->flash('error', t('Choose a bulk action.'));
-
-            return $this->buildRedirect($listUrl);
+        if (!in_array($mode, ['show', 'hide'], true) || $ids === []) {
+            return new JsonResponse(['error' => true, 'errors' => [t('Select at least one mailing list.')]]);
         }
 
         $em = $this->app->make(EntityManagerInterface::class);
@@ -106,7 +114,7 @@ class Lists extends DashboardPageController
             $entity = AbstractList::getByID($id);
 
             if ($entity instanceof AbstractList) {
-                $entity->setShowInForms($action === 'show' ? 1 : 0);
+                $entity->setShowInForms($mode === 'show' ? 1 : 0);
                 $em->persist($entity);
                 ++$count;
             }
@@ -114,24 +122,14 @@ class Lists extends DashboardPageController
 
         $em->flush();
 
-        $this->flash('success', $action === 'show'
+        $message = $mode === 'show'
             ? t2('%d mailing list will now show in forms.', '%d mailing lists will now show in forms.', $count)
-            : t2('%d mailing list will no longer show in forms.', '%d mailing lists will no longer show in forms.', $count));
+            : t2('%d mailing list will no longer show in forms.', '%d mailing lists will no longer show in forms.', $count);
 
-        return $this->buildRedirect($listUrl);
-    }
+        // Shown on the page after the results reload.
+        $this->flash('success', $message);
 
-    public function details(?string $id = null)
-    {
-        $entity = $id !== null ? AbstractList::getByID($id) : null;
-
-        if (!$entity instanceof AbstractList) {
-            return $this->buildRedirect('/dashboard/newsletter_signup/lists');
-        }
-
-        $this->set('entity', $entity);
-        $this->set('providerLabel', Registry::label(Registry::keyFor($entity)));
-        $this->set('token', $this->token);
+        return new JsonResponse(['error' => false, 'message' => $message]);
     }
 
     public function save(?string $id = null)

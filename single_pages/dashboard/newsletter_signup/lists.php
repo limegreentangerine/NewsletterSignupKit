@@ -19,6 +19,7 @@ if ($controller->getAction() === 'details') {
         'allowed_num_results' => $allowed_num_results ?? [],
         'token' => $token ?? null,
         'bulkToken' => $bulkToken ?? null,
+        'resultsBulkMenu' => $resultsBulkMenu ?? null,
         'view' => $view,
     ], 'newsletter_signup_kit');
 }
