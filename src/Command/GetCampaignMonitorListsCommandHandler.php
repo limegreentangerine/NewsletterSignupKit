@@ -49,10 +49,16 @@ class GetCampaignMonitorListsCommandHandler extends AbstractGetListsCommandHandl
     {
         $api = new CampaignMonitorApi($this->config);
 
+        $clients = [];
+        foreach ($this->entityManager->getRepository(MailingClient::class)->findAll() as $existing) {
+            $clients[$existing->getClientId()] = $existing;
+        }
+
         foreach ($this->unwrap($api->getClients()) as $clientData) {
             $this->output->write(t('Getting mailing lists for client: %s', $clientData->Name));
 
-            $client = MailingClient::getByClientID($clientData->ClientID) ?: new MailingClient();
+            $client = $clients[$clientData->ClientID] ?? new MailingClient();
+            $clients[$clientData->ClientID] = $client;
             $client->setClientId($clientData->ClientID);
             $client->setName($clientData->Name);
             $this->entityManager->persist($client);

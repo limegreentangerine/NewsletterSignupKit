@@ -72,6 +72,58 @@ abstract class AbstractList extends UpdatedGuidEntity
     }
 
     /**
+     * Get the lists with any of these list IDs in a single query, keyed by list ID.
+     *
+     * Must be called on a provider subclass, like getByListID().
+     *
+     * @param string[] $ids
+     *
+     * @return array<string, static>
+     */
+    public static function getByListIDs(array $ids): array
+    {
+        if ((new \ReflectionClass(static::class))->isAbstract()) {
+            throw new \LogicException('Call getByListIDs() on a provider list class.');
+        }
+
+        if ($ids === []) {
+            return [];
+        }
+
+        $em = \ORM::entityManager();
+        $lists = [];
+
+        foreach ($em->getRepository(static::class)->findBy(['listId' => array_values($ids)]) as $entity) {
+            $lists[$entity->getListId()] = $entity;
+        }
+
+        return $lists;
+    }
+
+    /**
+     * Get the lists with any of these primary keys in a single query, keyed by ID.
+     *
+     * @param string[] $ids
+     *
+     * @return array<string, static>
+     */
+    public static function getAllByIDs(array $ids): array
+    {
+        if ($ids === []) {
+            return [];
+        }
+
+        $em = \ORM::entityManager();
+        $lists = [];
+
+        foreach ($em->getRepository(static::class)->findBy(['id' => array_values($ids)]) as $entity) {
+            $lists[$entity->getID()] = $entity;
+        }
+
+        return $lists;
+    }
+
+    /**
      * Get every list (across providers when called on the abstract class) with this list ID
      *
      * @param string $id

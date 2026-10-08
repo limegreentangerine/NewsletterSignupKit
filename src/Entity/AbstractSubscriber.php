@@ -81,6 +81,31 @@ abstract class AbstractSubscriber extends UpdatedGuidEntity
     }
 
     /**
+     * Get the subscriptions of an email address for any of these list IDs in a single query, keyed by list ID.
+     *
+     * @param string[] $listIds
+     *
+     * @return array<string, static>
+     */
+    public static function getByEmailAndListIDs(string $email, array $listIds): array
+    {
+        static::assertConcrete();
+
+        if ($listIds === []) {
+            return [];
+        }
+
+        $em = \ORM::entityManager();
+        $subscribers = [];
+
+        foreach ($em->getRepository(static::class)->findBy(['email' => $email, 'listId' => array_values($listIds)]) as $entity) {
+            $subscribers[$entity->getListId()] = $entity;
+        }
+
+        return $subscribers;
+    }
+
+    /**
      * Get By Email Address and List ID
      *
      * @param string $email

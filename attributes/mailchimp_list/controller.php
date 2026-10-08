@@ -49,10 +49,10 @@ class Controller extends AttributeTypeController
     {
         $options = [];
         $values = (array) json_decode($this->getAttributeValue()->getValue());
+        $lists = MailchimpList::getByListIDs(array_map('strval', $values));
         foreach ($values as $value) {
-            $list = MailchimpList::getByListID((string) $value);
-            if ($list) {
-                $options[] = $list->getName();
+            if (isset($lists[$value])) {
+                $options[] = $lists[$value]->getName();
             }
         }
 

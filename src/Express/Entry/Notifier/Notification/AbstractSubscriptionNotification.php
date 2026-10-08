@@ -57,10 +57,10 @@ abstract class AbstractSubscriptionNotification implements NotificationInterface
 
             $subscriberClass = $this->getSubscriberClass();
 
-            foreach ($listIds as $listId) {
-                $sub = $subscriberClass::getByEmailAndListID($email, $listId);
+            $existing = $subscriberClass::getByEmailAndListIDs($email, array_map('strval', $listIds));
 
-                if ($sub === false || $sub->getID() < 1) {
+            foreach (array_unique($listIds) as $listId) {
+                if (!isset($existing[$listId])) {
                     $sub = new $subscriberClass();
                     $sub->setEmail($email);
                     $sub->setListId($listId);

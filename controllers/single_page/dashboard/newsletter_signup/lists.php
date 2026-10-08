@@ -88,7 +88,7 @@ class Lists extends DashboardPageController
         $this->set('bulkToken', $this->token->generate('bulk_lists'));
         $this->set('resultsBulkMenu', $this->buildBulkMenu());
 
-        $html = $this->app->make("helper/html");
+        $html = $this->app->make('helper/html');
         $this->addHeaderItem($html->css('dashboard/list.css', 'newsletter_signup_kit'));
     }
 
@@ -110,14 +110,10 @@ class Lists extends DashboardPageController
         $em = $this->app->make(EntityManagerInterface::class);
         $count = 0;
 
-        foreach (array_unique($ids) as $id) {
-            $entity = AbstractList::getByID($id);
-
-            if ($entity instanceof AbstractList) {
-                $entity->setShowInForms($mode === 'show' ? 1 : 0);
-                $em->persist($entity);
-                ++$count;
-            }
+        foreach (AbstractList::getAllByIDs(array_unique($ids)) as $entity) {
+            $entity->setShowInForms($mode === 'show' ? 1 : 0);
+            $em->persist($entity);
+            ++$count;
         }
 
         $em->flush();
@@ -130,6 +126,19 @@ class Lists extends DashboardPageController
         $this->flash('success', $message);
 
         return new JsonResponse(['error' => false, 'message' => $message]);
+    }
+
+    public function details(?string $id = null)
+    {
+        $entity = $id !== null ? AbstractList::getByID($id) : null;
+
+        if (!$entity instanceof AbstractList) {
+            return $this->buildRedirect('/dashboard/newsletter_signup/lists');
+        }
+
+        $this->set('entity', $entity);
+        $this->set('providerLabel', Registry::label(Registry::keyFor($entity)));
+        $this->set('token', $this->token);
     }
 
     public function save(?string $id = null)
