@@ -1,17 +1,15 @@
 <?php defined('C5_EXECUTE') or die('Access Denied.'); ?>
 <?php
 $form = \Core::make('helper/form');
-$bID = (int) $bID;
-$jsString = static fn($value): string => json_encode((string) $value, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_THROW_ON_ERROR);
 ?>
 
-<section id="mc_section_<?php echo $bID; ?>" class="block__mailchimp-signup">
+<section id="cm_section_<?php echo $bID; ?>" class="block__newsletter-signup-form">
     <div class="container">
         <div class="row g-5 g-lg-4 align-items-start justify-content-between">
             <div class="col-12 col-lg-5">
                 <?php if (strlen($title) > 0 || strlen($content) > 0) { ?>
                     <?php if (strlen($title) > 0) { ?>
-                        <h3><?php echo h($title); ?></h3>
+                        <h3><?php echo $title; ?></h3>
                     <?php } ?>
                     <?php if (strlen($content) > 0) {
                         echo $content;
@@ -19,13 +17,13 @@ $jsString = static fn($value): string => json_encode((string) $value, JSON_HEX_T
                 <?php } ?>
             </div>
             <div class="col-12 col-lg-6">
-                <div class="mc-feedback" role="status" aria-live="polite"></div>
+                <div class="cm-feedback" role="status" aria-live="polite"></div>
                 
-                <form id="mc_form_<?php echo $bID; ?>" action="<?php echo h($this->action('subscribe')); ?>#mc_<?php echo $bID; ?>" method="post">
+                <form id="cm_form_<?php echo $bID; ?>" action="<?php echo $this->action('subscribe'); ?>#cm_<?php echo $bID; ?>" method="post">
                     <fieldset>
                         <?php
                             echo $form->hidden('listId', $subscriptionListId);
-echo $form->hidden('ajax', (int) $ajaxSubmission);
+echo $form->hidden('ajax', $ajaxSubmission);
 ?>
                     </fieldset>
                     <fieldset>
@@ -34,7 +32,7 @@ echo $form->hidden('ajax', (int) $ajaxSubmission);
                                 <div class="form-group">
                                     <?php
                 echo $form->label('firstName', t('First name'));
-echo $form->text('firstName', $formData['firstName'] ?? '', ['autocomplete' => 'given-name']);
+echo $form->text('firstName', (isset($formData)) ? $formData['firstName'] : '', ['autocomplete' => 'given-name']);
 ?>
                                 </div>
                             </div>
@@ -42,7 +40,7 @@ echo $form->text('firstName', $formData['firstName'] ?? '', ['autocomplete' => '
                                 <div class="form-group">
                                     <?php
     echo $form->label('lastName', t('Last name'));
-echo $form->text('lastName', $formData['lastName'] ?? '', ['autocomplete' => 'family-name']);
+echo $form->text('lastName', (isset($formData)) ? $formData['lastName'] : '', ['autocomplete' => 'family-name']);
 ?>
                                 </div>
                             </div>
@@ -50,14 +48,14 @@ echo $form->text('lastName', $formData['lastName'] ?? '', ['autocomplete' => 'fa
                                 <div class="form-group">
                                     <?php
     echo $form->label('email', t('Email address'));
-echo $form->email('email', $formData['email'] ?? '', ['autocomplete' => 'email']);
+echo $form->email('email', (isset($formData)) ? $formData['email'] : '', ['autocomplete' => 'email']);
 ?>
                                 </div>
                             </div>
                         </div>
                     </fieldset>
                     <div class="d-grid mt-4">
-                        <button type="submit" class="btn btn-primary"><?php echo h($buttonText); ?></button>
+                        <button type="submit" class="btn btn-primary"><?php echo $buttonText; ?></button>
                     </div>
                 </form>
                 <?php if (strlen($helpText) > 0) { ?>
@@ -71,33 +69,21 @@ echo $form->email('email', $formData['email'] ?? '', ['autocomplete' => 'email']
 <?php if ($ajaxSubmission) { ?>
 <script type="text/javascript">
 (function() {
-    const form = document.querySelector("#mc_form_<?php echo $bID; ?>");
-    const feedbackEl = document.querySelector("#mc_section_<?php echo $bID; ?> .mc-feedback");
+    const form = document.querySelector("#cm_form_<?php echo $bID; ?>");
+    const feedbackEl = document.querySelector("#cm_section_<?php echo $bID; ?> .cm-feedback");
     const submitBtn = form.querySelector('button[type="submit"]');
     
-    // Message is inserted as text unless explicitly flagged as trusted HTML
-    function showAlert(type, message, isHtml) {
-        const el = document.createElement('div');
-        el.className = 'alert alert-' + type;
-        if (isHtml) {
-            el.innerHTML = message;
-        } else {
-            el.textContent = message;
-        }
-        feedbackEl.replaceChildren(el);
-    }
-
     form.addEventListener("submit", async function(e) {
         e.preventDefault();
         
         // Clear previous feedback
         feedbackEl.innerHTML = '';
-        feedbackEl.className = 'mc-feedback';
+        feedbackEl.className = 'cm-feedback';
         
         // Disable button and show loading state
         const originalText = submitBtn.textContent;
         submitBtn.disabled = true;
-        submitBtn.textContent = <?php echo $jsString(t('Submitting...')); ?>;
+        submitBtn.textContent = '<?php echo t('Submitting...'); ?>';
         
         try {
             const formData = new FormData(form);
@@ -115,11 +101,14 @@ echo $form->email('email', $formData['email'] ?? '', ['autocomplete' => 'email']
                 const data = await response.json();
                 
                 if (data.success) {
-                    // successMessage is admin-authored rich text, escaped for the JS context
-                    showAlert('success', <?php echo $jsString($successMessage); ?>, true);
+                    feedbackEl.innerHTML = '<div class="alert alert-success">' + 
+                        ('<?php echo $successMessage; ?>') + 
+                        '</div>';
                     form.reset();
                 } else {
-                    showAlert('danger', data.message);
+                    feedbackEl.innerHTML = '<div class="alert alert-danger">' + 
+                        data.message + 
+                        '</div>';
                 }
             } else {
                 // Fallback for HTML response (traditional ConcreteCMS pattern)
@@ -129,18 +118,18 @@ echo $form->email('email', $formData['email'] ?? '', ['autocomplete' => 'email']
                 const alert = doc.querySelector('.alert');
                 
                 if (alert) {
-                    showAlert(alert.classList.contains('alert-success') ? 'success' : 'danger', alert.textContent);
+                    feedbackEl.innerHTML = alert.outerHTML;
                     if (alert.classList.contains('alert-success')) {
                         form.reset();
                     }
                 } else {
-                    showAlert('danger', <?php echo $jsString(t('An unexpected error occurred.')); ?>);
+                    feedbackEl.innerHTML = '<div class="alert alert-danger"><?php echo t('An unexpected error occurred.'); ?></div>';
                 }
             }
             
         } catch (error) {
             console.error('Subscription error:', error);
-            showAlert('danger', <?php echo $jsString(t('Network error. Please check your connection and try again.')); ?>);
+            feedbackEl.innerHTML = '<div class="alert alert-danger"><?php echo t('Network error. Please check your connection and try again.'); ?></div>';
         } finally {
             submitBtn.disabled = false;
             submitBtn.textContent = originalText;
