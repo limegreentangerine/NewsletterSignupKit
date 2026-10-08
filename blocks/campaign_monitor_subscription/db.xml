@@ -15,7 +15,7 @@
         <field name="buttonText" type="string" size="255" />
         <field name="helpText" type="text" />
         <field name="successMessage" type="text" />
-        <field name="ajaxSubmission", type="integer" size="1">
+        <field name="ajaxSubmission" type="integer" size="1">
             <unsigned />
             <default value="0" />
         </field>

@@ -20,6 +20,11 @@ class MailchimpList extends AbstractList
      */
     protected ?string $visibility;
 
+    public function getProvider(): string
+    {
+        return t('Mailchimp');
+    }
+
     /**
      * Get By List Web ID
      *

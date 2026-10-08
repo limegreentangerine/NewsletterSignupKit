@@ -40,8 +40,11 @@ abstract class AbstractSubscriber extends ItemList implements ApplicationAwareIn
         $query = $this->deliverQueryObject();
         $adapter = new \Pagerfanta\Doctrine\DBAL\QueryAdapter(
             $query,
-            function () {
-                return $this->getTotalResults();
+            function (\Doctrine\DBAL\Query\QueryBuilder $countQuery) {
+                $countQuery
+                    ->resetQueryParts(['groupBy', 'orderBy'])
+                    ->select('count(distinct s.id)')
+                    ->setMaxResults(1);
             },
         );
         return new Pagination($this, $adapter);

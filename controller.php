@@ -4,10 +4,11 @@ namespace Concrete\Package\NewsletterSignupKit;
 
 use Concrete\Core\Entity\Package;
 use ClassKit\Package\PackageController;
-use ClassKit\Package\Traits\{BlockTrait, PageTrait};
+use ClassKit\Package\Traits\{AttributeTrait, BlockTrait, PageTrait};
 
 class Controller extends PackageController
 {
+    use AttributeTrait;
     use BlockTrait;
     use PageTrait;
     /**
@@ -24,7 +25,7 @@ class Controller extends PackageController
      *
      * @var string
      */
-    protected $pkgVersion = '0.0.2';
+    protected $pkgVersion = '0.0.1.beta0.0.2';
 
     /**
      * The minimum Concrete version compatible with the package.
@@ -106,7 +107,7 @@ class Controller extends PackageController
 
     public function getPackageName()
     {
-        return t('Newsletter Signup');
+        return t('NewsletterSignupKit');
     }
 
     public function getPackageDescription()
@@ -121,6 +122,10 @@ class Controller extends PackageController
 
         // Add scheduled tasks
         $this->installContentFile('tasks.xml');
+
+        // add Attribute Types
+        $this->addAttributeType('campaign_monitor_list', t('Campaign Monitor List'), $pkg, [ 'express' ]);
+        $this->addAttributeType('mailchimp_list', t('Mailchimp List'), $pkg, [ 'express' ]);
 
         // Add dashboard pages
         $this->addSinglePage('/dashboard/newsletter_signup', $pkg, t('Newsletter Signup'), t('Newsletter Signup Dashboard'));

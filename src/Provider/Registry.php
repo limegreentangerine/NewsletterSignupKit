@@ -4,10 +4,10 @@ namespace NewsletterSignupKit\Provider;
 
 use NewsletterSignupKit\Entity\AbstractList;
 use NewsletterSignupKit\Entity\Mailchimp\MailchimpList;
+use NewsletterSignupKit\Search\Column\Set\MailingList\MailingList;
 use NewsletterSignupKit\Entity\CampaignMonitor\CampaignMonitorList;
 use NewsletterSignupKit\Config\{CampaignMonitorConfig, Env, MailchimpConfig};
 use NewsletterSignupKit\Search\Result\MailingList\{CampaignMonitor as CampaignMonitorResult, Mailchimp as MailchimpResult};
-use NewsletterSignupKit\Search\Column\Set\MailingList\{CampaignMonitor as CampaignMonitorColumns, Mailchimp as MailchimpColumns};
 use NewsletterSignupKit\Search\ItemList\MailingList\{CampaignMonitor as CampaignMonitorItemList, Mailchimp as MailchimpItemList};
 
 /**
@@ -27,7 +27,7 @@ class Registry
             'entity' => MailchimpList::class,
             'itemList' => MailchimpItemList::class,
             'result' => MailchimpResult::class,
-            'columns' => MailchimpColumns::class,
+            'columns' => MailingList::class,
         ],
         'campaignmonitor' => [
             'label' => 'Campaign Monitor',
@@ -35,7 +35,7 @@ class Registry
             'entity' => CampaignMonitorList::class,
             'itemList' => CampaignMonitorItemList::class,
             'result' => CampaignMonitorResult::class,
-            'columns' => CampaignMonitorColumns::class,
+            'columns' => MailingList::class,
         ],
     ];
 

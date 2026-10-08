@@ -57,5 +57,8 @@
 			"type": "composer",
 			"url": "https://packages.limegreentangerine.net"
 		}
-	]
+	],
+	"conflict": {
+		"concrete5/core": "<9.5"
+	}
 }

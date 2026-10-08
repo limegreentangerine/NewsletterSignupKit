@@ -16,6 +16,11 @@ class CampaignMonitorList extends AbstractList
      */
     protected $client;
 
+    public function getProvider(): string
+    {
+        return t('Campaign Monitor');
+    }
+
     /**
      * Get the value of client
      */

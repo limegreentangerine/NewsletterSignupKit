@@ -4,7 +4,7 @@ namespace NewsletterSignupKit\Search\Column\Set\MailingList;
 
 use Concrete\Core\Search\Column\{Column, Set};
 
-class Mailchimp extends Set
+class MailingList extends Set
 {
     public function __construct()
     {
@@ -16,22 +16,15 @@ class Mailchimp extends Set
         ));
 
         $this->addColumn(new Column(
-            'l.listId',
-            t('List ID'),
-            'getListID',
-            false,
-        ));
-
-        $this->addColumn(new Column(
-            'l.listWebId',
-            t('List Web ID'),
-            'getListWebID',
-            false,
+            'l.provider',
+            t('Provider'),
+            'getProvider',
+            true,
         ));
 
         $this->addColumn(new Column(
             'l.showInForms',
-            t('Show In Forms'),
+            t('Show in Forms'),
             'getShowInFormsString',
             false,
         ));

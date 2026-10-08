@@ -19,6 +19,11 @@ abstract class AbstractMailingList extends Item
         $this->entity = $item;
     }
 
+    public function getID()
+    {
+        return $this->entity->getID();
+    }
+
     public function getViewUrl()
     {
         return URL::to('/dashboard/newsletter_signup/lists/details', $this->entity->getID());

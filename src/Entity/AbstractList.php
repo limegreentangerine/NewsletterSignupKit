@@ -86,6 +86,11 @@ abstract class AbstractList extends UpdatedGuidEntity
     }
 
     /**
+     * Get the provider's display name (shown in the Provider search column)
+     */
+    abstract public function getProvider(): string;
+
+    /**
      * Get the value of name
      */
     public function getName()

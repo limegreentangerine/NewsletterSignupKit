@@ -64,6 +64,61 @@ class Lists extends DashboardPageController
         $this->set('num_results', $numResults);
         $this->set('allowed_num_results', $allowedNumResults);
         $this->set('token', $this->token->generate('list-search'));
+        $this->set('bulkToken', $this->token->output('bulk_lists', true));
+    }
+
+    /**
+     * Bulk-set showInForms on the ticked lists.
+     */
+    public function bulk()
+    {
+        $provider = (string) $this->request->request->get('provider', '');
+        $listUrl = $this->app->make('url/manager')->resolve(['/dashboard/newsletter_signup/lists']);
+        if (Registry::has($provider)) {
+            $listUrl = $listUrl->setQuery(['provider' => $provider]);
+        }
+
+        if (!$this->token->validate('bulk_lists')) {
+            $this->flash('error', $this->token->getErrorMessage());
+
+            return $this->buildRedirect($listUrl);
+        }
+
+        $ids = array_filter((array) $this->request->request->all('ids'), 'is_string');
+        $action = (string) $this->request->request->get('bulk_action', '');
+
+        if ($ids === []) {
+            $this->flash('error', t('Select at least one mailing list.'));
+
+            return $this->buildRedirect($listUrl);
+        }
+
+        if (!in_array($action, ['show', 'hide'], true)) {
+            $this->flash('error', t('Choose a bulk action.'));
+
+            return $this->buildRedirect($listUrl);
+        }
+
+        $em = $this->app->make(EntityManagerInterface::class);
+        $count = 0;
+
+        foreach (array_unique($ids) as $id) {
+            $entity = AbstractList::getByID($id);
+
+            if ($entity instanceof AbstractList) {
+                $entity->setShowInForms($action === 'show' ? 1 : 0);
+                $em->persist($entity);
+                ++$count;
+            }
+        }
+
+        $em->flush();
+
+        $this->flash('success', $action === 'show'
+            ? t2('%d mailing list will now show in forms.', '%d mailing lists will now show in forms.', $count)
+            : t2('%d mailing list will no longer show in forms.', '%d mailing lists will no longer show in forms.', $count));
+
+        return $this->buildRedirect($listUrl);
     }
 
     public function details(?string $id = null)

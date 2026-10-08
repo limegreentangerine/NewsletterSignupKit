@@ -40,8 +40,11 @@ abstract class AbstractMailingList extends ItemList implements ApplicationAwareI
         $query = $this->deliverQueryObject();
         $adapter = new \Pagerfanta\Doctrine\DBAL\QueryAdapter(
             $query,
-            function () {
-                return $this->getTotalResults();
+            function (\Doctrine\DBAL\Query\QueryBuilder $countQuery) {
+                $countQuery
+                    ->resetQueryParts(['groupBy', 'orderBy'])
+                    ->select('count(distinct l.id)')
+                    ->setMaxResults(1);
             },
         );
         return new Pagination($this, $adapter);
