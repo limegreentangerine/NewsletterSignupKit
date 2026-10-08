@@ -35,13 +35,6 @@ class Controller extends AttributeTypeController
             ->where('l.showInForms = 1')
             ->orderBy('l.name', 'ASC');
 
-        $site = Core::make('site')->getActiveSiteForEditing();
-        $locales = $site->getLocales();
-        if (count($locales) > 1) {
-            $qb->andWhere('l.languages LIKE :language')
-                ->setParameter('language', '%' . Localization::activeLanguage() . '%');
-        }
-
         return $qb->getQuery()->getResult();
     }
 
