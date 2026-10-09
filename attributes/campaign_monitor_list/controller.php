@@ -4,11 +4,9 @@ namespace Concrete\Package\NewsletterSignupKit\Attribute\CampaignMonitorList;
 
 defined('C5_EXECUTE') or die('Access Denied.');
 
-use Core;
 use View;
 use Doctrine\ORM\EntityManagerInterface;
 use ClassKit\Package\Traits\AttributeTrait;
-use Concrete\Core\Localization\Localization;
 use NewsletterSignupKit\Entity\CampaignMonitor\CampaignMonitorList;
 use Concrete\Core\Attribute\{Controller as AttributeTypeController, FontAwesomeIconFormatter};
 
