@@ -4,11 +4,9 @@ namespace Concrete\Package\NewsletterSignupKit\Attribute\CampaignMonitorList;
 
 defined('C5_EXECUTE') or die('Access Denied.');
 
-use Core;
 use View;
 use Doctrine\ORM\EntityManagerInterface;
 use ClassKit\Package\Traits\AttributeTrait;
-use Concrete\Core\Localization\Localization;
 use NewsletterSignupKit\Entity\CampaignMonitor\CampaignMonitorList;
 use Concrete\Core\Attribute\{Controller as AttributeTypeController, FontAwesomeIconFormatter};
 
@@ -34,13 +32,6 @@ class Controller extends AttributeTypeController
             ->from(CampaignMonitorList::class, 'l')
             ->where('l.showInForms = 1')
             ->orderBy('l.name', 'ASC');
-
-        $site = Core::make('site')->getActiveSiteForEditing();
-        $locales = $site->getLocales();
-        if (count($locales) > 1) {
-            $qb->andWhere('l.languages LIKE :language')
-                ->setParameter('language', '%' . Localization::activeLanguage() . '%');
-        }
 
         return $qb->getQuery()->getResult();
     }
