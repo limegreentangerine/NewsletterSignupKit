@@ -25,9 +25,9 @@ tasks that sync lists and retry failed signups.
 - **List attributes**: _Mailchimp List_ and _Campaign Monitor List_ attribute
   types for Express entities.
 - **Dashboard pages** under **Newsletter Signup**:
-  - **Settings**: shows which provider credentials are populated (secrets are
-    masked). Values are read-only here and come from `.env`.
-  - **Mailing Lists**: the imported lists, with bulk actions.
+    - **Settings**: shows which provider credentials are populated (secrets are
+      masked). Values are read-only here and come from `.env`.
+    - **Mailing Lists**: the imported lists, with bulk actions.
 - **Uninstall confirmation**: uninstalling requires ticking **Confirm
   Uninstall**.
 
@@ -59,11 +59,11 @@ Credentials are read from environment variables, either set in the process
 environment or in a `.env` file at the package root (the process environment
 takes precedence, so CLI task runs work either way).
 
-| Provider         | Variable                  | Required | Notes                                                    |
-| ---------------- | ------------------------- | -------- | -------------------------------------------------------- |
-| Mailchimp        | `MAILCHIMP_API_KEY`       | Yes      | Secret.                                                  |
+| Provider         | Variable                  | Required | Notes                                                   |
+| ---------------- | ------------------------- | -------- | ------------------------------------------------------- |
+| Mailchimp        | `MAILCHIMP_API_KEY`       | Yes      | Secret.                                                 |
 | Mailchimp        | `MAILCHIMP_SERVER_PREFIX` | Yes      | The data-centre prefix of your key, for example `us21`. |
-| Campaign Monitor | `CAMPAIGNMONITOR_API_KEY` | Yes      | Secret.                                                  |
+| Campaign Monitor | `CAMPAIGNMONITOR_API_KEY` | Yes      | Secret.                                                 |
 
 ```dotenv
 MAILCHIMP_API_KEY=your-key
@@ -89,12 +89,12 @@ populated. A provider that is not fully configured is skipped by the tasks.
 Tasks are grouped in the **Newsletter Signup** task set under **Dashboard >
 System & Settings > Automation**, and can be scheduled or run from the CLI.
 
-| Task handle                        | Purpose                                                       |
-| ---------------------------------- | ------------------------------------------------------------- |
-| `get_mailchimp_lists`              | Import Mailchimp lists.                                       |
-| `get_campaign_monitor_lists`       | Import Campaign Monitor lists.                                |
-| `add_mailchimp_subscribers`        | Send queued (unprocessed) subscribers to Mailchimp.           |
-| `add_campaign_monitor_subscribers` | Send queued (unprocessed) subscribers to Campaign Monitor.    |
+| Task handle                        | Purpose                                                    |
+| ---------------------------------- | ---------------------------------------------------------- |
+| `get_mailchimp_lists`              | Import Mailchimp lists.                                    |
+| `get_campaign_monitor_lists`       | Import Campaign Monitor lists.                             |
+| `add_mailchimp_subscribers`        | Send queued (unprocessed) subscribers to Mailchimp.        |
+| `add_campaign_monitor_subscribers` | Send queued (unprocessed) subscribers to Campaign Monitor. |
 
 Queued subscribers are marked processed only once the provider accepts them, so
 failures are retried on the next run. Provider activity and errors are written
@@ -116,14 +116,14 @@ the Cloudflare Access service-token headers for that host
 (`CF-ACCESS-CLIENT-ID` and `CF-ACCESS-CLIENT-SECRET`) and keep the credentials
 out of the repository.
 
-| Command                                             | Purpose                                                                                                          |
-| --------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
-| `composer test`                                     | Run PHPUnit tests.                                                                                               |
-| `composer test-coverage`                            | Run PHPUnit and print a coverage report.                                                                         |
+| Command                                             | Purpose                                                                                                            |
+| --------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| `composer test`                                     | Run PHPUnit tests.                                                                                                 |
+| `composer test-coverage`                            | Run PHPUnit and print a coverage report.                                                                           |
 | `composer typecheck`                                | Run PHPStan (`phpstan.neon`). Findings are displayed, but the command exits successfully even if errors are found. |
-| `composer format:check` / `composer format`         | Check or apply PHP and JavaScript formatting.                                                                    |
-| `composer format:php:check` / `composer format:php` | Check or format PHP files with PHP-CS-Fixer.                                                                     |
-| `composer format:js:check` / `composer format:js`   | Check or format files with Prettier.                                                                             |
+| `composer format:check` / `composer format`         | Check or apply PHP and JavaScript formatting.                                                                      |
+| `composer format:php:check` / `composer format:php` | Check or format PHP files with PHP-CS-Fixer.                                                                       |
+| `composer format:js:check` / `composer format:js`   | Check or format files with Prettier.                                                                               |
 
 If you add package directories, update `paths` in `phpstan.neon` and the
 directories in `.php-cs-fixer.dist.php`.
@@ -139,16 +139,16 @@ Both authenticate to the private registry using the repository secrets
 
 ### Code layout
 
-| Path                                   | Contents                                                        |
-| -------------------------------------- | --------------------------------------------------------------- |
-| `controller.php`                       | Package controller: install, tasks, attributes, dashboard pages |
-| `blocks/`                              | Subscription form block types                                   |
-| `attributes/`                          | Mailchimp and Campaign Monitor list attribute types             |
-| `single_pages/`, `controllers/`        | Dashboard pages and their controllers                           |
-| `elements/dashboard/`                  | Dashboard elements, including the uninstall confirmation        |
-| `src/Api`, `src/Config`                | Provider API clients and environment-based configuration        |
-| `src/Command`                          | Task commands and handlers                                      |
-| `src/Entity`, `src/Express`, `src/Search` | Doctrine entities, Express controllers and list search       |
+| Path                                      | Contents                                                        |
+| ----------------------------------------- | --------------------------------------------------------------- |
+| `controller.php`                          | Package controller: install, tasks, attributes, dashboard pages |
+| `blocks/`                                 | Subscription form block types                                   |
+| `attributes/`                             | Mailchimp and Campaign Monitor list attribute types             |
+| `single_pages/`, `controllers/`           | Dashboard pages and their controllers                           |
+| `elements/dashboard/`                     | Dashboard elements, including the uninstall confirmation        |
+| `src/Api`, `src/Config`                   | Provider API clients and environment-based configuration        |
+| `src/Command`                             | Task commands and handlers                                      |
+| `src/Entity`, `src/Express`, `src/Search` | Doctrine entities, Express controllers and list search          |
 
 ## Further reading
 
