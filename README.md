@@ -14,6 +14,15 @@ throughout the project (use case-sensitive search):
 
 Add contributor details to the `authors` section of `composer.json`.
 
+## Features
+
+- Mailchimp and Campaign Monitor newsletter subscription blocks.
+- Mailchimp and Campaign Monitor list attributes.
+- Dashboard pages for managing lists and subscribers, including bulk actions.
+- Scheduled tasks for fetching lists and adding subscribers.
+- Uninstall confirmation: uninstalling the package from the dashboard requires
+  ticking **Confirm Uninstall** (`elements/dashboard/uninstall.php`).
+
 ## Requirements
 
 - PHP 8.4 or later.

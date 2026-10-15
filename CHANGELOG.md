@@ -2,6 +2,17 @@
 
 Notable changes to this project are documented here.
 
+## 1.0.2
+
+### Added
+
+- Dashboard uninstall confirmation: the package now shows an "Are you sure?"
+  prompt with a required confirmation checkbox before it can be uninstalled.
+
+### Changed
+
+- Bumped the package version to 1.0.2.
+
 ## 0.0.0
 
 ### Added
