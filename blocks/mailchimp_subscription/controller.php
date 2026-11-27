@@ -6,10 +6,9 @@ defined('C5_EXECUTE') or die('Access Denied.');
 
 use Core;
 use Exception;
-use Concrete\Core\Http\Response;
 use Concrete\Core\Block\BlockController;
 use NewsletterSignupKit\Block\BlockTrait;
-use Concrete\Core\Routing\RedirectResponse;
+use GuzzleHttp\Exception\RequestException;
 use NewsletterSignupKit\Api\Mailchimp as Api;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use NewsletterSignupKit\Log\MailchimpLogger as Logger;
@@ -54,16 +53,10 @@ class Controller extends BlockController
         $isAjax = $post['ajax'];
 
         if ($post['email'] === '' || $post['listId'] === '') {
-            $message = t('Please enter a valid email address.');
-            if ($isAjax) {
-                return new JsonResponse(['success' => false, 'message' => $message]);
-            }
-            $this->set('error', true);
-            $this->set('errorMessage', $message);
-
-            return;
+            return $this->subscriptionFailure(t('Please enter a valid email address.'), $isAjax);
         }
 
+        $systemError = t('A system error occurred. Please try again later.');
         $api = new Api();
         $args = [
             'status_if_new' => 'subscribed',
@@ -76,35 +69,34 @@ class Controller extends BlockController
         ];
 
         try {
+            // Returns the member object on success; throws on any non-2xx response
             $response = $api->addMember($post['listId'], $post['email'], $args, true);
-            if (property_exists($response, 'id')) {
-                if ($isAjax) {
-                    return new JsonResponse(['success' => true]);
-                }
-                $this->set('success', true);
-                return (new RedirectResponse(\URL::to('/thank_you'), Response::HTTP_TEMPORARY_REDIRECT))->send();
-            }
+        } catch (RequestException $e) {
+            $status = $e->hasResponse() ? $e->getResponse()->getStatusCode() : 0;
+            $body = $e->hasResponse() ? json_decode((string) $e->getResponse()->getBody()) : null;
+            $logger->addError('Mailchimp Error: ' . ($body !== null ? json_encode($body) : $e->getMessage()));
 
+            // 400 = Mailchimp rejected this subscriber (e.g. fake email); retrying from the batch queue won't help
+            if ($status === 400) {
+                return $this->subscriptionFailure($body->detail ?? $body->title ?? $systemError, $isAjax);
+            }
             $this->addToBatchSubscribers($post, Subscriber::class, Logger::class);
-            $errorMessage = $response['title'] ?? 'Unknown error';
-            $logger->addError('Mailchimp Error: ' . json_encode($response));
 
-            if ($isAjax) {
-                return new JsonResponse(['success' => false, 'message' => $errorMessage]);
-            }
-
-            $this->set('error', true);
-            $this->set('errorMessage', $errorMessage);
-
+            return $this->subscriptionFailure($systemError, $isAjax);
         } catch (Exception $e) {
+            $logger->addError('Mailchimp Error: ' . $e->getMessage());
             $this->addToBatchSubscribers($post, Subscriber::class, Logger::class);
-            if ($isAjax) {
-                return new JsonResponse([
-                    'success' => false,
-                    'message' => t('A system error occurred. Please try again later.'),
-                ]);
-            }
-            throw $e;
+
+            return $this->subscriptionFailure($systemError, $isAjax);
         }
+
+        if (!is_object($response) || !isset($response->id)) {
+            $logger->addError('Mailchimp Error: unexpected response ' . json_encode($response));
+            $this->addToBatchSubscribers($post, Subscriber::class, Logger::class);
+
+            return $this->subscriptionFailure($systemError, $isAjax);
+        }
+
+        return $isAjax ? new JsonResponse(['success' => true]) : $this->successRedirect();
     }
 }

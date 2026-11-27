@@ -17,9 +17,9 @@ $form = \Core::make('helper/form');
                 <?php } ?>
             </div>
             <div class="col-12 col-lg-6">
-                <div class="cm-feedback" role="status" aria-live="polite"></div>
+                <div class="cm-feedback" role="status" aria-live="polite"><?php if (!empty($error)) { ?><div class="alert alert-danger"><?php echo h($errorMessage); ?></div><?php } ?></div>
                 
-                <form id="cm_form_<?php echo $bID; ?>" action="<?php echo $this->action('subscribe'); ?>#cm_<?php echo $bID; ?>" method="post">
+                <form id="cm_form_<?php echo $bID; ?>" action="<?php echo $this->action('subscribe'); ?>#cm_section_<?php echo $bID; ?>" method="post">
                     <fieldset>
                         <?php
                             echo $form->hidden('listId', $subscriptionListId);
@@ -102,13 +102,15 @@ echo $form->email('email', (isset($formData)) ? $formData['email'] : '', ['autoc
                 
                 if (data.success) {
                     feedbackEl.innerHTML = '<div class="alert alert-success">' + 
-                        ('<?php echo $successMessage; ?>') + 
+                        <?php echo json_encode((string) $successMessage, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT); ?> + 
                         '</div>';
                     form.reset();
                 } else {
-                    feedbackEl.innerHTML = '<div class="alert alert-danger">' + 
-                        data.message + 
-                        '</div>';
+                    // API text: insert as text, never as HTML
+                    const alertEl = document.createElement('div');
+                    alertEl.className = 'alert alert-danger';
+                    alertEl.textContent = data.message;
+                    feedbackEl.replaceChildren(alertEl);
                 }
             } else {
                 // Fallback for HTML response (traditional ConcreteCMS pattern)
