@@ -31,7 +31,7 @@ echo $editor->outputStandardEditor('content', $content ?? null);
 ?>
     </div>
 
-    <div class="form-group">
+    <div class="form-group" id="ns-success-message-group">
         <?php
     echo $form->label('successMessage', t('Success Message'));
 echo $editor->outputStandardEditor('successMessage', $successMessage ?? null);
@@ -45,6 +45,14 @@ echo $editor->outputStandardEditor('successMessage', $successMessage ?? null);
 echo $form->label('ajaxSubmission', t('AJAX Submission?'));
 ?>
         </div>
+    </div>
+
+    <div class="form-group" id="ns-thank-you-page-group">
+        <?php
+    echo $form->label('thankYouPageID', t('Thank You Page'));
+echo \Core::make('helper/form/page_selector')->selectPage('thankYouPageID', $thankYouPageID ?? null);
+?>
+        <div class="form-text"><?php echo t('Visitors are sent here after subscribing. Required unless AJAX submission is enabled.'); ?></div>
     </div>
 </fieldset>
 
@@ -72,3 +80,16 @@ echo $editor->outputStandardEditor('helpText', $helpText ?? null);
 ?>
     </div>
 </fieldset>
+
+<script>
+(function() {
+    // AJAX shows the success message in place; otherwise visitors go to the thank you page
+    const ajax = document.getElementById('ajaxSubmission');
+    const sync = function() {
+        document.getElementById('ns-thank-you-page-group').classList.toggle('d-none', ajax.checked);
+        document.getElementById('ns-success-message-group').classList.toggle('d-none', !ajax.checked);
+    };
+    ajax.addEventListener('change', sync);
+    sync();
+})();
+</script>

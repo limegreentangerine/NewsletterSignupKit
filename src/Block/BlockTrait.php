@@ -3,8 +3,11 @@
 namespace NewsletterSignupKit\Block;
 
 use Core;
+use Concrete\Core\Page\Page;
+use Concrete\Core\Routing\Redirect;
 use Concrete\Core\Editor\LinkAbstractor;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use NewsletterSignupKit\Search\ItemList\MailingList\AbstractMailingList;
 
 trait BlockTrait
@@ -92,6 +95,58 @@ trait BlockTrait
         ];
     }
 
+    /**
+     * Report a failed subscription: JSON for AJAX, otherwise set the error
+     * for view.php to render (no redirect).
+     */
+    protected function subscriptionFailure(string $message, bool $isAjax)
+    {
+        if ($isAjax) {
+            return new JsonResponse(['success' => false, 'message' => $message]);
+        }
+        $this->set('error', true);
+        $this->set('errorMessage', $message);
+
+        return null;
+    }
+
+    /**
+     * Get the block's thank you page, or null if none is set or it no longer exists.
+     */
+    protected function getThankYouPage(int $cID): ?Page
+    {
+        if ($cID < 1) {
+            return null;
+        }
+        $page = Page::getByID($cID);
+
+        return ($page->isError() || $page->isInTrash()) ? null : $page;
+    }
+
+    /**
+     * Redirect a successful non-AJAX submission to the block's thank you page.
+     */
+    protected function successRedirect()
+    {
+        $page = $this->getThankYouPage((int) $this->thankYouPageID);
+        // Blocks saved before thankYouPageID existed keep the old hard-coded page
+        if ($page === null) {
+            return Redirect::to('/thank_you');
+        }
+
+        return Redirect::page($page);
+    }
+
+    public function validate($args)
+    {
+        $error = $this->app->make('helper/validation/error');
+        if (empty($args['ajaxSubmission']) && $this->getThankYouPage((int) ($args['thankYouPageID'] ?? 0)) === null) {
+            $error->add(t('Choose a thank you page, or enable AJAX submission.'));
+        }
+
+        return $error;
+    }
+
     public function add()
     {
         $this->loadHelpers();
@@ -115,6 +170,8 @@ trait BlockTrait
     public function save($args)
     {
         $args['ajaxSubmission'] = array_key_exists('ajaxSubmission', $args) ? (int) $args['ajaxSubmission'] : 0;
+        // The thank you page only applies to non-AJAX submissions
+        $args['thankYouPageID'] = $args['ajaxSubmission'] ? 0 : (int) ($args['thankYouPageID'] ?? 0);
 
         // Plain-text fields must never carry markup
         foreach (['title', 'placeholder', 'buttonText'] as $field) {

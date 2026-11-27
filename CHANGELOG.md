@@ -2,6 +2,33 @@
 
 Notable changes to this project are documented here.
 
+## 1.0.3
+
+### Added
+
+- Subscription blocks: a "Thank You Page" picker. When AJAX submission is off,
+  a page must be chosen and successful sign-ups are redirected to it. Blocks
+  saved before this version keep redirecting to `/thank_you` until edited.
+
+### Changed
+
+- The edit dialog shows the thank you page picker only when AJAX is off, and
+  the success message only when AJAX is on.
+- Non-AJAX submission errors are now shown on the page in the same place as
+  AJAX errors, and the visitor is not redirected.
+
+### Fixed
+
+- Campaign Monitor sign-ups were always treated as failures (and queued for
+  the batch job) because success was detected incorrectly.
+- Mailchimp API errors (e.g. invalid email) now show Mailchimp's message
+  instead of an error page on non-AJAX forms.
+- Subscribers the provider rejects outright (HTTP 400) are no longer added
+  to the batch queue.
+- AJAX error messages are inserted as text rather than HTML.
+- An AJAX success message containing an apostrophe or line break no longer
+  breaks the form's script.
+
 ## 1.0.2
 
 ### Added

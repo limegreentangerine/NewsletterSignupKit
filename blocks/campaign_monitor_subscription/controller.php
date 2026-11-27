@@ -6,10 +6,8 @@ defined('C5_EXECUTE') or die('Access Denied.');
 
 use Core;
 use Exception;
-use Concrete\Core\Http\Response;
 use Concrete\Core\Block\BlockController;
 use NewsletterSignupKit\Block\BlockTrait;
-use Concrete\Core\Routing\RedirectResponse;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use NewsletterSignupKit\Api\CampaignMonitor as Api;
 use NewsletterSignupKit\Log\CampaignMonitorLogger as Logger;
@@ -53,16 +51,10 @@ class Controller extends BlockController
         $isAjax = $post['ajax'];
 
         if ($post['email'] === '' || $post['listId'] === '') {
-            $message = t('Please enter a valid email address.');
-            if ($isAjax) {
-                return new JsonResponse(['success' => false, 'message' => $message]);
-            }
-            $this->set('error', true);
-            $this->set('errorMessage', $message);
-
-            return;
+            return $this->subscriptionFailure(t('Please enter a valid email address.'), $isAjax);
         }
 
+        $systemError = t('A system error occurred. Please try again later.');
         $api = new Api();
         $args = [
             'EmailAddress' => $post['email'],
@@ -72,35 +64,27 @@ class Controller extends BlockController
         ];
 
         try {
+            // Returns a CS_REST_Wrapper_Result; HTTP errors are reported on it, not thrown
             $response = $api->addSubscriber($post['listId'], $post['email'], $args);
-            if (property_exists($response, 'id')) {
-                if ($isAjax) {
-                    return new JsonResponse(['success' => true]);
-                }
-                $this->set('success', true);
-                return (new RedirectResponse(\URL::to('/thank_you'), Response::HTTP_TEMPORARY_REDIRECT))->send();
-            }
-
-            $this->addToBatchSubscribers($post, Subscriber::class, Logger::class);
-            $errorMessage = $response['title'] ?? 'Unknown error';
-            $logger->addError('Campaign Monitor Error: ' . json_encode($response));
-
-            if ($isAjax) {
-                return new JsonResponse(['success' => false, 'message' => $errorMessage]);
-            }
-
-            $this->set('error', true);
-            $this->set('errorMessage', $errorMessage);
-
         } catch (Exception $e) {
+            $logger->addError('Campaign Monitor Error: ' . $e->getMessage());
             $this->addToBatchSubscribers($post, Subscriber::class, Logger::class);
-            if ($isAjax) {
-                return new JsonResponse([
-                    'success' => false,
-                    'message' => t('A system error occurred. Please try again later.'),
-                ]);
-            }
-            throw $e;
+
+            return $this->subscriptionFailure($systemError, $isAjax);
         }
+
+        if ($response->was_successful()) {
+            return $isAjax ? new JsonResponse(['success' => true]) : $this->successRedirect();
+        }
+
+        $logger->addError('Campaign Monitor Error: ' . json_encode($response->response));
+
+        // 400 = Campaign Monitor rejected this subscriber (e.g. invalid email); retrying from the batch queue won't help
+        if ((int) $response->http_status_code === 400) {
+            return $this->subscriptionFailure($response->response->Message ?? $systemError, $isAjax);
+        }
+        $this->addToBatchSubscribers($post, Subscriber::class, Logger::class);
+
+        return $this->subscriptionFailure($systemError, $isAjax);
     }
 }
